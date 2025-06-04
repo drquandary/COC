@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Playable Game</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .game-area { 
+            display: grid; 
+            grid-template-columns: 1fr 400px; 
+            gap: 20px; 
+        }
+        .game-board { 
+            background: white; 
+            border: 2px solid #34495e; 
+            border-radius: 8px; 
+            padding: 20px;
+            min-height: 600px;
+            position: relative;
+        }
+        .controls { 
+            background: white; 
+            border: 2px solid #34495e; 
+            border-radius: 8px; 
+            padding: 20px;
+        }
+        .btn { 
+            background: #3498db; 
+            color: white; 
+            border: none; 
+            padding: 12px 18px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px 0; 
+            width: 100%;
+            font-weight: bold;
+        }
+        .btn:hover { background: #2980b9; }
+        .btn.success { background: #27ae60; }
+        .btn.success:hover { background: #229954; }
+        .btn:disabled { background: #95a5a6; cursor: not-allowed; }
+        .region { 
+            position: absolute; 
+            width: 80px; 
+            height: 50px; 
+            border: 2px solid #7f8c8d; 
+            border-radius: 6px; 
+            background: #ecf0f1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 11px; 
+            font-weight: bold;
+            text-align: center;
+        }
+        .region.supply-center { 
+            background: #f39c12; 
+            border-color: #e67e22;
+        }
+        .unit { 
+            position: absolute; 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            border: 3px solid white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .unit.army { background: #e74c3c; }
+        .unit.fleet { background: #3498db; }
+        .log { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            font-size: 11px; 
+            height: 200px; 
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .player-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .civilization-select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Cradle of Civilization - Quick Play</h1>
+            <p>Simple game setup without the complexity</p>
+        </div>
+
+        <div class="game-area">
+            <div class="game-board" id="gameBoard">
+                <h3>Game Board</h3>
+                <div id="mapContainer"></div>
+            </div>
+
+            <div class="controls">
+                <h3>Quick Start</h3>
+                
+                <div id="authSection">
+                    <button class="btn" onclick="quickLogin()">🔐 Quick Login</button>
+                    <div id="authStatus"></div>
+                </div>
+
+                <div id="gameSection" style="display: none;">
+                    <div class="player-info" id="playerInfo">
+                        <div><strong>Player:</strong> <span id="playerName">-</span></div>
+                        <div><strong>Civilization:</strong> <span id="playerCiv">-</span></div>
+                    </div>
+
+                    <h4>Choose Civilization:</h4>
+                    <select class="civilization-select" id="civSelect">
+                        <option value="babylon">Babylon</option>
+                        <option value="egypt">Egypt</option>
+                        <option value="assyria">Assyria</option>
+                        <option value="persia">Persia</option>
+                        <option value="hittites">Hittites</option>
+                    </select>
+
+                    <button class="btn success" onclick="startQuickGame()">🚀 Start Quick Game</button>
+                    <button class="btn" onclick="resetGame()">🔄 Reset</button>
+                </div>
+
+                <div id="gameStatus"></div>
+
+                <div class="log" id="gameLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        let gameData = {
+            isAuthenticated: false,
+            currentUser: null,
+            gameEngine: null,
+            gameState: null,
+            currentPlayer: null
+        };
+
+        function log(message, type = 'info') {
+            const gameLog = document.getElementById('gameLog');
+            const time = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'debug' ? '🔍' : 'ℹ️';
+            gameLog.innerHTML += `[${time}] ${prefix} ${message}\n`;
+            gameLog.scrollTop = gameLog.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function setStatus(message, type = 'info') {
+            const status = document.getElementById('gameStatus');
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+            status.innerHTML = `<div class="status ${className}">${message}</div>`;
+        }
+
+        function renderMap() {
+            const mapContainer = document.getElementById('mapContainer');
+            mapContainer.innerHTML = '';
+
+            const regions = [
+                { id: 'babylon', name: 'Babylon', x: 200, y: 200, isSupplyCenter: true },
+                { id: 'mesopotamia', name: 'Mesopotamia', x: 300, y: 150, isSupplyCenter: true },
+                { id: 'bagdad', name: 'Bagdad', x: 250, y: 250, isSupplyCenter: true },
+                { id: 'syria', name: 'Syria', x: 100, y: 100, isSupplyCenter: false },
+                { id: 'persia', name: 'Persia', x: 400, y: 200, isSupplyCenter: true },
+                { id: 'egypt', name: 'Egypt', x: 50, y: 300, isSupplyCenter: true },
+                { id: 'anatolia', name: 'Anatolia', x: 150, y: 50, isSupplyCenter: false }
+            ];
+
+            regions.forEach(region => {
+                const regionDiv = document.createElement('div');
+                regionDiv.className = 'region' + (region.isSupplyCenter ? ' supply-center' : '');
+                regionDiv.style.left = region.x + 'px';
+                regionDiv.style.top = region.y + 'px';
+                regionDiv.textContent = region.name;
+                regionDiv.title = `${region.name}${region.isSupplyCenter ? ' (Supply Center)' : ''}`;
+                
+                regionDiv.onclick = () => {
+                    log(`Clicked region: ${region.name}`, 'debug');
+                };
+                
+                mapContainer.appendChild(regionDiv);
+            });
+
+            log('Game map rendered', 'success');
+        }
+
+        function renderUnits(units) {
+            const mapContainer = document.getElementById('mapContainer');
+            
+            // Remove existing units
+            const existingUnits = mapContainer.querySelectorAll('.unit');
+            existingUnits.forEach(unit => unit.remove());
+
+            if (!units || units.length === 0) {
+                log('No units to render', 'debug');
+                return;
+            }
+
+            log(`Rendering ${units.length} units...`, 'info');
+
+            const regionPositions = {
+                'babylon': { x: 225, y: 210 },
+                'mesopotamia': { x: 325, y: 160 },
+                'bagdad': { x: 275, y: 260 },
+                'syria': { x: 125, y: 110 },
+                'persia': { x: 425, y: 210 },
+                'egypt': { x: 75, y: 310 },
+                'anatolia': { x: 175, y: 60 }
+            };
+
+            units.forEach((unit, index) => {
+                log(`Unit ${index}: type=${unit.type}, region='${unit.region}', playerId=${unit.playerId}`, 'debug');
+                
+                if (unit.region === undefined || unit.region === null) {
+                    log(`❌ CRITICAL: Unit ${index} has undefined region!`, 'error');
+                    return;
+                } else {
+                    log(`✅ Unit ${index} has valid region: '${unit.region}'`, 'success');
+                }
+
+                const unitDiv = document.createElement('div');
+                unitDiv.className = `unit ${unit.type}`;
+                
+                const pos = regionPositions[unit.region] || { x: 50 + (index * 50), y: 50 };
+                unitDiv.style.left = pos.x + 'px';
+                unitDiv.style.top = pos.y + 'px';
+                unitDiv.textContent = unit.type === 'army' ? 'A' : 'F';
+                unitDiv.title = `${unit.type.toUpperCase()} in ${unit.region} (${unit.playerId})`;
+                
+                unitDiv.onclick = () => {
+                    log(`Selected ${unit.type} in ${unit.region}`, 'success');
+                };
+                
+                mapContainer.appendChild(unitDiv);
+            });
+
+            log(`Successfully rendered ${units.length} units`, 'success');
+        }
+
+        // Mock authentication
+        window.quickLogin = function() {
+            log('Performing quick login...', 'info');
+            
+            gameData.currentUser = {
+                uid: 'quick_player_' + Date.now(),
+                email: 'player@quickgame.com',
+                displayName: 'Quick Player'
+            };
+            
+            gameData.isAuthenticated = true;
+            
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+            document.getElementById('playerName').textContent = gameData.currentUser.displayName;
+            document.getElementById('authStatus').innerHTML = '<div class="status success">✅ Logged in successfully!</div>';
+            
+            log('✅ Logged in as: ' + gameData.currentUser.email, 'success');
+            setStatus('Ready to start game', 'success');
+        };
+
+        // Start a quick game
+        window.startQuickGame = function() {
+            if (!gameData.isAuthenticated) {
+                setStatus('Please login first', 'error');
+                return;
+            }
+
+            const selectedCiv = document.getElementById('civSelect').value;
+            log(`Starting quick game as ${selectedCiv}...`, 'info');
+
+            try {
+                // Mock game creation and joining
+                const gameId = 'quick_game_' + Date.now();
+                const playerId = 'player_' + Date.now();
+
+                // Fixed createUnit function (the one we debugged)
+                const createUnit = (type, regionId, playerId) => {
+                    const unitId = `${playerId}_${type}_${regionId}_${Date.now()}`;
+                    return {
+                        id: unitId,
+                        type: type,
+                        region: regionId,        // ✅ THE FIX: This prevents undefined regions
+                        regionId: regionId,      // Backwards compatibility
+                        playerId: playerId,
+                        canRetreat: false,
+                        isRetreating: false,
+                        mustRetreat: false,
+                        dislodged: false
+                    };
+                };
+
+                // Create starting units based on civilization
+                const startingRegions = {
+                    'babylon': ['babylon', 'mesopotamia', 'bagdad'],
+                    'egypt': ['egypt', 'syria'],
+                    'assyria': ['assyria', 'mesopotamia'],
+                    'persia': ['persia', 'bagdad'],
+                    'hittites': ['anatolia', 'syria']
+                };
+
+                const regions = startingRegions[selectedCiv] || ['babylon'];
+                const units = [];
+
+                regions.forEach((regionId, index) => {
+                    log(`Creating unit ${index} for region: ${regionId}`, 'debug');
+                    const unit = createUnit('army', regionId, playerId);
+                    units.push(unit);
+                    log(`Created unit: ${JSON.stringify(unit)}`, 'debug');
+                    
+                    // Verify region is not undefined
+                    if (unit.region === undefined) {
+                        throw new Error(`Unit created with undefined region: ${JSON.stringify(unit)}`);
+                    }
+                });
+
+                // Update game state
+                gameData.gameState = {
+                    id: gameId,
+                    status: 'active',
+                    units: units,
+                    players: [{
+                        id: playerId,
+                        userId: gameData.currentUser.uid,
+                        civilization: selectedCiv,
+                        supplyCenters: regions.filter(r => ['babylon', 'mesopotamia', 'bagdad', 'egypt', 'persia'].includes(r)),
+                        units: units.map(u => u.id)
+                    }]
+                };
+
+                gameData.currentPlayer = gameData.gameState.players[0];
+
+                // Update UI
+                document.getElementById('playerCiv').textContent = selectedCiv.charAt(0).toUpperCase() + selectedCiv.slice(1);
+                
+                // Render units
+                renderUnits(units);
+
+                log(`✅ Game started successfully!`, 'success');
+                log(`✅ Playing as ${selectedCiv} with ${units.length} units`, 'success');
+                log(`✅ All units have proper region properties - no undefined values!`, 'success');
+                
+                setStatus(`🎉 Game active! Playing as ${selectedCiv} with ${units.length} units`, 'success');
+
+            } catch (error) {
+                log(`❌ Failed to start game: ${error.message}`, 'error');
+                setStatus(`❌ Failed to start game: ${error.message}`, 'error');
+            }
+        };
+
+        window.resetGame = function() {
+            gameData = {
+                isAuthenticated: false,
+                currentUser: null,
+                gameEngine: null,
+                gameState: null,
+                currentPlayer: null
+            };
+
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('gameSection').style.display = 'none';
+            document.getElementById('authStatus').innerHTML = '';
+            document.getElementById('gameStatus').innerHTML = '';
+            document.getElementById('gameLog').innerHTML = '';
+            document.getElementById('playerName').textContent = '-';
+            document.getElementById('playerCiv').textContent = '-';
+
+            renderMap();
+            log('🔄 Game reset', 'info');
+        };
+
+        // Initialize
+        log('🎮 Simple Playable Game loaded', 'info');
+        log('💡 Click "Quick Login" to start playing', 'info');
+        renderMap();
+    </script>
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Working Game Demo</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+        }
+        .game-area { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr; 
+            gap: 20px; 
+            height: 600px;
+        }
+        .game-board { 
+            background: white; 
+            border: 2px solid #34495e; 
+            border-radius: 8px; 
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-info { 
+            background: white; 
+            border: 2px solid #34495e; 
+            border-radius: 8px; 
+            padding: 20px;
+        }
+        .region { 
+            position: absolute; 
+            width: 60px; 
+            height: 40px; 
+            border: 2px solid #7f8c8d; 
+            border-radius: 4px; 
+            background: #ecf0f1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 10px; 
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .region:hover { 
+            background: #bdc3c7; 
+            border-color: #2c3e50; 
+        }
+        .region.supply-center { 
+            background: #f39c12; 
+            border-color: #e67e22;
+        }
+        .region.supply-center:hover { 
+            background: #e67e22; 
+        }
+        .unit { 
+            position: absolute; 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 50%; 
+            border: 2px solid white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 10px; 
+            font-weight: bold; 
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .unit.army { background: #e74c3c; }
+        .unit.fleet { background: #3498db; }
+        .player-info { 
+            background: #ecf0f1; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-bottom: 15px;
+        }
+        .civilization { 
+            font-weight: bold; 
+            font-size: 18px; 
+            margin-bottom: 10px;
+        }
+        .stats { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin-bottom: 15px;
+        }
+        .stat { 
+            background: white; 
+            padding: 10px; 
+            border-radius: 3px; 
+            text-align: center;
+        }
+        .controls { 
+            background: #ecf0f1; 
+            padding: 15px; 
+            border-radius: 5px;
+        }
+        .btn { 
+            background: #3498db; 
+            color: white; 
+            border: none; 
+            padding: 10px 15px; 
+            border-radius: 3px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        .btn:hover { background: #2980b9; }
+        .btn.danger { background: #e74c3c; }
+        .btn.danger:hover { background: #c0392b; }
+        .log { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 10px; 
+            border-radius: 3px; 
+            font-family: monospace; 
+            font-size: 12px; 
+            height: 150px; 
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Cradle of Civilization - Working Demo</h1>
+            <p>Ancient Middle East Diplomacy Game</p>
+        </div>
+
+        <div class="game-area">
+            <div class="game-board" id="gameBoard">
+                <h3>Ancient Middle East Map</h3>
+                <div id="mapContainer"></div>
+            </div>
+
+            <div class="game-info">
+                <div class="player-info" id="playerInfo">
+                    <div class="civilization" id="playerCiv">No Player</div>
+                    <div class="stats">
+                        <div class="stat">
+                            <div>Supply Centers</div>
+                            <div id="supplyCenterCount">0</div>
+                        </div>
+                        <div class="stat">
+                            <div>Units</div>
+                            <div id="unitCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="initializeDemo()">🚀 Start Demo Game</button>
+                    <button class="btn" onclick="addTestUnits()">⚔️ Add Test Units</button>
+                    <button class="btn danger" onclick="resetDemo()">🔄 Reset</button>
+                </div>
+
+                <div class="log" id="gameLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        let gameState = null;
+        let currentPlayer = null;
+        let demoAuthService = null;
+        let gameService = null;
+
+        function log(message) {
+            const gameLog = document.getElementById('gameLog');
+            const time = new Date().toLocaleTimeString();
+            gameLog.innerHTML += `[${time}] ${message}\n`;
+            gameLog.scrollTop = gameLog.scrollHeight;
+            console.log(message);
+        }
+
+        function updatePlayerInfo() {
+            if (!currentPlayer) return;
+
+            document.getElementById('playerCiv').textContent = 
+                currentPlayer.civilizationData?.name || 'Unknown';
+            document.getElementById('supplyCenterCount').textContent = 
+                currentPlayer.supplyCenters?.length || 0;
+            document.getElementById('unitCount').textContent = 
+                currentPlayer.units?.length || 0;
+        }
+
+        function renderMap() {
+            const mapContainer = document.getElementById('mapContainer');
+            mapContainer.innerHTML = '';
+
+            // Import constants and render basic map
+            import('./src/js/utils/constants.js').then(({ MAP_REGIONS, CIVILIZATIONS }) => {
+                log('Rendering map with ' + Object.keys(MAP_REGIONS).length + ' regions');
+
+                Object.entries(MAP_REGIONS).forEach(([regionId, region], index) => {
+                    const regionDiv = document.createElement('div');
+                    regionDiv.className = 'region' + (region.isSupplyCenter ? ' supply-center' : '');
+                    regionDiv.style.left = (region.coordinates?.x || (index % 10) * 70) + 'px';
+                    regionDiv.style.top = (region.coordinates?.y || Math.floor(index / 10) * 50) + 'px';
+                    regionDiv.textContent = region.name.substring(0, 6);
+                    regionDiv.title = region.name + (region.isSupplyCenter ? ' (Supply Center)' : '');
+                    regionDiv.onclick = () => {
+                        log(`Clicked region: ${region.name}`);
+                    };
+                    mapContainer.appendChild(regionDiv);
+                });
+
+                log('Map rendered successfully');
+            }).catch(error => {
+                log('Error loading map: ' + error.message);
+            });
+        }
+
+        function renderUnits() {
+            log(`🎨 renderUnits called - gameState: ${!!gameState}, units: ${gameState?.units ? 'exists' : 'missing'}`);
+            
+            if (!gameState || !gameState.units) {
+                log('❌ No gameState or units to render');
+                return;
+            }
+
+            const mapContainer = document.getElementById('mapContainer');
+            
+            // Remove existing units
+            const existingUnits = mapContainer.querySelectorAll('.unit');
+            existingUnits.forEach(unit => unit.remove());
+            log(`🧹 Removed ${existingUnits.length} existing units`);
+
+            // gameState.units is an array from getGameState(), not a Map
+            const units = Array.isArray(gameState.units) ? gameState.units : [];
+            log(`🎯 Processing ${units.length} units for rendering`);
+
+            // Import MAP_REGIONS to get coordinates
+            import('./src/js/utils/constants.js').then(({ MAP_REGIONS }) => {
+                units.forEach((unit, index) => {
+                    log(`🎨 Rendering unit ${index}: ${unit.type} in ${unit.region}`);
+                    
+                    const region = MAP_REGIONS[unit.region];
+                    const unitDiv = document.createElement('div');
+                    unitDiv.className = `unit ${unit.type}`;
+                    
+                    // Use region coordinates if available, otherwise offset from region position
+                    const baseX = region?.coordinates?.x || (index % 10) * 70;
+                    const baseY = region?.coordinates?.y || Math.floor(index / 10) * 50;
+                    
+                    unitDiv.style.left = (baseX + 20) + 'px'; // Offset from region center
+                    unitDiv.style.top = (baseY + 15) + 'px';
+                    unitDiv.textContent = unit.type === 'army' ? 'A' : 'F';
+                    unitDiv.title = `${unit.type} in ${unit.region} (${unit.playerId})`;
+                    unitDiv.onclick = () => {
+                        log(`🎯 Selected ${unit.type} in ${unit.region}`);
+                    };
+                    mapContainer.appendChild(unitDiv);
+                    
+                    log(`✅ Unit rendered at (${baseX + 20}, ${baseY + 15})`);
+                });
+
+                log(`✅ Rendered ${units.length} units successfully`);
+            }).catch(error => {
+                log(`❌ Error loading MAP_REGIONS: ${error.message}`);
+            });
+        }
+
+        window.initializeDemo = async function() {
+            try {
+                log('🚀 Starting demo initialization...');
+
+                // Import and initialize demo auth
+                const demoAuthModule = await import('./src/js/core/demo-auth.js');
+                demoAuthService = demoAuthModule.default;
+                demoAuthService.initialize();
+                log('✅ Demo auth initialized');
+
+                // Login
+                const user = await demoAuthService.login('demo@example.com', 'password123');
+                log(`✅ Logged in as: ${user.email}`);
+
+                // Import and initialize game service
+                const gameServiceModule = await import('./src/js/services/game-service.js');
+                gameService = gameServiceModule.default;
+                gameService.demoMode = true;
+                log('✅ Game service initialized');
+
+                // Create a demo game
+                const gameConfig = {
+                    name: 'Demo Game',
+                    description: 'A working demo',
+                    maxPlayers: 7,
+                    turnLengthHours: 48,
+                    isPrivate: false,
+                    allowSpectators: true
+                };
+
+                const gameId = await gameService.createGame(gameConfig);
+                log(`✅ Game created: ${gameId}`);
+
+                // Join the game
+                const { CIVILIZATIONS } = await import('./src/js/utils/constants.js');
+                const firstCiv = Object.keys(CIVILIZATIONS)[0].toLowerCase();
+                
+                const joinResult = await gameService.joinGame(gameId, firstCiv);
+                log(`✅ Joined as ${firstCiv}: ${joinResult.playerId}`);
+
+                // Debug game service state
+                log(`🔍 Debug: gameService.gameEngine exists: ${!!gameService.gameEngine}`);
+                log(`🔍 Debug: gameService.currentGame exists: ${!!gameService.currentGame}`);
+                log(`🔍 Debug: gameService.currentPlayerId: ${gameService.currentPlayerId}`);
+                
+                if (gameService.gameEngine) {
+                    log(`🔍 Debug: gameEngine.gameState exists: ${!!gameService.gameEngine.gameState}`);
+                    if (gameService.gameEngine.gameState) {
+                        log(`🔍 Debug: gameState.players size: ${gameService.gameEngine.gameState.players.size}`);
+                        log(`🔍 Debug: gameState.units size: ${gameService.gameEngine.gameState.units.size}`);
+                    }
+                }
+
+                // Get game state
+                gameState = gameService.getCurrentGameState();
+                log(`🔍 Debug: getCurrentGameState() returned: ${gameState ? 'object' : 'null'}`);
+                
+                if (gameState) {
+                    log(`🔍 Debug: gameState has players: ${Array.isArray(gameState.players) ? gameState.players.length : 'not array'}`);
+                    log(`🔍 Debug: gameState has units: ${Array.isArray(gameState.units) ? gameState.units.length : 'not array'}`);
+                    
+                    if (gameState.players && gameState.players.length > 0) {
+                        currentPlayer = gameState.players[0];
+                        log(`✅ Game state loaded - Players: ${gameState.players.length}, Units: ${gameState.units.length}`);
+                        updatePlayerInfo();
+                        renderUnits();
+                    } else {
+                        log('⚠️ Game state exists but no players found');
+                    }
+                } else {
+                    log('⚠️ getCurrentGameState() returned null');
+                }
+
+                renderMap();
+
+            } catch (error) {
+                log(`❌ Demo initialization failed: ${error.message}`);
+                console.error('Demo error:', error);
+            }
+        };
+
+        window.addTestUnits = function() {
+            if (!gameState) {
+                log('❌ No game state - run demo first');
+                return;
+            }
+
+            // Add some test units manually
+            const testUnits = [
+                { id: 'test1', type: 'army', region: 'babylon', playerId: 'demo', x: 200, y: 100 },
+                { id: 'test2', type: 'fleet', region: 'mediterranean', playerId: 'demo', x: 100, y: 200 },
+                { id: 'test3', type: 'army', region: 'memphis', playerId: 'demo', x: 50, y: 300 }
+            ];
+
+            testUnits.forEach(unit => {
+                gameState.units.set(unit.id, unit);
+            });
+
+            if (currentPlayer) {
+                currentPlayer.units = Array.from(gameState.units.values()).filter(u => u.playerId === 'demo');
+                updatePlayerInfo();
+            }
+
+            renderUnits();
+            log(`✅ Added ${testUnits.length} test units`);
+        };
+
+        window.resetDemo = function() {
+            gameState = null;
+            currentPlayer = null;
+            document.getElementById('mapContainer').innerHTML = '';
+            document.getElementById('gameLog').innerHTML = '';
+            document.getElementById('playerCiv').textContent = 'No Player';
+            document.getElementById('supplyCenterCount').textContent = '0';
+            document.getElementById('unitCount').textContent = '0';
+            log('🔄 Demo reset');
+        };
+
+        // Initialize the demo page
+        log('🎮 Working Game Demo loaded');
+        log('💡 Click "Start Demo Game" to begin');
+        renderMap();
+    </script>
+</body>
+</html>

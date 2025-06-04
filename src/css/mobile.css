@@ -1,0 +1,529 @@
+/* ===== MOBILE-SPECIFIC STYLES ===== */
+
+/* Touch-friendly enhancements */
+@media (max-width: 768px) {
+    /* Ensure touch targets are at least 44x44px */
+    .btn,
+    .icon-btn,
+    .nav-menu a,
+    input,
+    select,
+    textarea {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Prevent zoom on input focus */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Better touch scrolling */
+    .main-content,
+    .nav-content,
+    .modal-content {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Remove hover effects on touch devices */
+    @media (hover: none) {
+        .btn:hover,
+        .icon-btn:hover,
+        .nav-menu a:hover,
+        .menu-toggle:hover {
+            transform: none;
+            background-color: inherit;
+        }
+    }
+}
+
+/* ===== AUTH SCREEN MOBILE ===== */
+@media (max-width: 768px) {
+    .auth-container {
+        padding: var(--spacing-lg);
+        margin: 0 auto;
+        max-width: 400px;
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    .auth-header h2 {
+        font-size: var(--font-size-2xl);
+        color: var(--neutral-charcoal);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .auth-header p {
+        color: var(--text-secondary);
+        font-size: var(--font-size-base);
+    }
+    
+    .auth-tabs {
+        display: flex;
+        margin-bottom: var(--spacing-lg);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .auth-tab {
+        flex: 1;
+        padding: var(--spacing-md);
+        background-color: var(--neutral-stone);
+        color: var(--text-light);
+        border: none;
+        cursor: pointer;
+        transition: background-color var(--transition-fast);
+        font-size: var(--font-size-base);
+    }
+    
+    .auth-tab.active {
+        background-color: var(--primary-gold);
+        color: var(--neutral-charcoal);
+        font-weight: bold;
+    }
+    
+    .auth-form {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .form-footer {
+        text-align: center;
+        margin-top: var(--spacing-md);
+    }
+    
+    .form-footer a {
+        color: var(--primary-gold);
+        text-decoration: none;
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* ===== DASHBOARD MOBILE ===== */
+@media (max-width: 768px) {
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    .stat-card {
+        background-color: white;
+        padding: var(--spacing-lg);
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        text-align: center;
+        border-left: 4px solid var(--primary-gold);
+    }
+    
+    .stat-card h3 {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-number {
+        font-size: var(--font-size-2xl);
+        font-weight: bold;
+        color: var(--primary-gold);
+    }
+    
+    .quick-actions {
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    .quick-actions h3 {
+        margin-bottom: var(--spacing-md);
+        color: var(--neutral-charcoal);
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+    }
+    
+    .recent-activity h3 {
+        margin-bottom: var(--spacing-md);
+        color: var(--neutral-charcoal);
+    }
+    
+    .activity-list {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+    
+    .activity-item {
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-text {
+        flex: 1;
+        font-size: var(--font-size-sm);
+        color: var(--text-primary);
+    }
+    
+    .activity-time {
+        font-size: var(--font-size-xs);
+        color: var(--text-secondary);
+        margin-left: var(--spacing-sm);
+    }
+}
+
+/* ===== GAME SCREEN MOBILE ===== */
+@media (max-width: 768px) {
+    .game-header {
+        background-color: white;
+        padding: var(--spacing-md);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: var(--spacing-md);
+        border-radius: 8px;
+    }
+    
+    .game-info h2 {
+        font-size: var(--font-size-lg);
+        color: var(--neutral-charcoal);
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .game-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .game-status span {
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+    }
+    
+    #current-phase {
+        font-weight: bold;
+        color: var(--primary-gold);
+    }
+    
+    #turn-deadline {
+        color: var(--warning);
+    }
+    
+    .game-controls {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+    
+    .game-controls .btn {
+        flex: 1;
+    }
+    
+    .game-content {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 200px);
+    }
+    
+    .game-map-container {
+        flex: 1;
+        position: relative;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        margin-bottom: var(--spacing-md);
+        min-height: 400px;
+    }
+    
+    .game-map {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .map-controls {
+        position: absolute;
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+    
+    .map-control-btn {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--border-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-lg);
+        color: var(--neutral-charcoal);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .map-control-btn:active {
+        transform: scale(0.95);
+        background-color: var(--primary-gold);
+    }
+    
+    .orders-panel {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        max-height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .panel-header {
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: var(--neutral-sand);
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .panel-header h3 {
+        color: var(--neutral-charcoal);
+        font-size: var(--font-size-lg);
+    }
+    
+    .toggle-btn {
+        background: none;
+        border: none;
+        font-size: var(--font-size-xl);
+        color: var(--neutral-stone);
+        cursor: pointer;
+        padding: var(--spacing-xs);
+        line-height: 1;
+    }
+    
+    .panel-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--spacing-md);
+    }
+    
+    .orders-list {
+        margin-bottom: var(--spacing-md);
+        min-height: 100px;
+    }
+    
+    .order-item {
+        padding: var(--spacing-sm);
+        margin-bottom: var(--spacing-xs);
+        background-color: var(--neutral-sand);
+        border-radius: 4px;
+        border-left: 3px solid var(--primary-gold);
+        font-size: var(--font-size-sm);
+    }
+    
+    .order-item.invalid {
+        border-left-color: var(--error);
+        background-color: rgba(220, 38, 38, 0.1);
+    }
+    
+    .order-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+        border-top: 1px solid var(--border-light);
+        padding-top: var(--spacing-md);
+    }
+    
+    .order-actions .btn {
+        flex: 1;
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-sm);
+    }
+}
+
+/* ===== TOUCH GESTURES AND INTERACTIONS ===== */
+@media (max-width: 768px) {
+    /* Disable text selection on UI elements */
+    .btn,
+    .icon-btn,
+    .nav-menu a,
+    .map-control-btn,
+    .toggle-btn {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Enhanced touch feedback */
+    .btn:active,
+    .icon-btn:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease-out;
+    }
+    
+    /* Swipe gestures for navigation */
+    .side-nav {
+        touch-action: pan-y;
+    }
+    
+    .game-map {
+        touch-action: pan-x pan-y pinch-zoom;
+    }
+    
+    /* Pull-to-refresh indicator */
+    .main-content {
+        overscroll-behavior: contain;
+    }
+    
+    /* Improved scrolling for lists */
+    .orders-list,
+    .activity-list,
+    .nav-menu {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+}
+
+/* ===== LANDSCAPE ORIENTATION ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+    .game-content {
+        flex-direction: row;
+        height: calc(100vh - 150px);
+    }
+    
+    .game-map-container {
+        flex: 2;
+        margin-bottom: 0;
+        margin-right: var(--spacing-md);
+    }
+    
+    .orders-panel {
+        flex: 1;
+        min-width: 300px;
+        max-height: none;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .action-buttons {
+        flex-direction: row;
+    }
+}
+
+/* ===== SMALL SCREENS (320px and below) ===== */
+@media (max-width: 320px) {
+    .header-content {
+        padding: var(--spacing-xs);
+    }
+    
+    .app-title {
+        font-size: var(--font-size-sm);
+    }
+    
+    .user-controls {
+        gap: var(--spacing-xs);
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .game-controls {
+        flex-direction: column;
+    }
+    
+    .side-nav {
+        width: 100%;
+        left: -100%;
+    }
+    
+    .auth-container {
+        padding: var(--spacing-md);
+    }
+    
+    .modal-content {
+        margin: var(--spacing-sm);
+        max-width: calc(100% - 2rem);
+    }
+}
+
+/* ===== PWA ENHANCEMENTS ===== */
+@media (display-mode: standalone) {
+    /* Add extra padding for status bar on iOS */
+    .app-header {
+        padding-top: calc(var(--spacing-md) + env(safe-area-inset-top));
+    }
+    
+    /* Account for home indicator on iOS */
+    .main-content {
+        padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom));
+    }
+    
+    /* Remove browser UI elements styling */
+    .loading-screen {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .loading-spinner {
+        animation: none;
+        border: 4px solid var(--primary-gold);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    /* Future dark mode support can be added here */
+}
+
+/* ===== HIGH DPI DISPLAYS ===== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Optimizations for retina/high-DPI displays */
+    .loading-spinner {
+        border-width: 2px;
+    }
+    
+    .stat-card,
+    .game-header,
+    .orders-panel {
+        box-shadow: var(--shadow-md);
+    }
+}

@@ -1,0 +1,469 @@
+/* ===== ANCIENT MIDDLE EAST THEME ===== */
+
+/* Custom fonts for ancient feel */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* ===== CIVILIZATION-SPECIFIC COLORS ===== */
+:root {
+    /* Babylon - Rich gold and deep blue */
+    --babylon-primary: #FFD700;
+    --babylon-secondary: #1E3A8A;
+    --babylon-accent: #4338CA;
+    
+    /* Assyria - Iron gray and crimson */
+    --assyria-primary: #6B7280;
+    --assyria-secondary: #DC2626;
+    --assyria-accent: #991B1B;
+    
+    /* Egypt - Royal blue and gold */
+    --egypt-primary: #1E40AF;
+    --egypt-secondary: #F59E0B;
+    --egypt-accent: #0EA5E9;
+    
+    /* Persia - Purple and silver */
+    --persia-primary: #7C3AED;
+    --persia-secondary: #E5E7EB;
+    --persia-accent: #5B21B6;
+    
+    /* Phoenicia - Sea green and coral */
+    --phoenicia-primary: #059669;
+    --phoenicia-secondary: #F97316;
+    --phoenicia-accent: #0D9488;
+    
+    /* Hittites - Brown and bronze */
+    --hittites-primary: #92400E;
+    --hittites-secondary: #CD7F32;
+    --hittites-accent: #A16207;
+    
+    /* Elam - Emerald and gold */
+    --elam-primary: #10B981;
+    --elam-secondary: #F59E0B;
+    --elam-accent: #047857;
+    
+    /* Map terrain colors */
+    --terrain-desert: #F4E4BC;
+    --terrain-mountains: #8B7355;
+    --terrain-water: #0EA5E9;
+    --terrain-fertile: #22C55E;
+    --terrain-city: #6B7280;
+}
+
+/* ===== TYPOGRAPHY THEME ===== */
+.theme-ancient {
+    font-family: 'Crimson Text', serif;
+}
+
+.theme-ancient h1,
+.theme-ancient h2,
+.theme-ancient h3,
+.theme-ancient h4,
+.theme-ancient h5,
+.theme-ancient h6 {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+}
+
+.theme-ancient .app-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.theme-ancient .logo h1 {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+/* ===== DECORATIVE ELEMENTS ===== */
+.ancient-border {
+    border-image: linear-gradient(90deg, 
+        var(--primary-gold) 0%, 
+        var(--primary-bronze) 50%, 
+        var(--primary-gold) 100%) 1;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.ancient-pattern {
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(212, 175, 55, 0.1) 10px,
+            rgba(212, 175, 55, 0.1) 20px
+        );
+}
+
+.papyrus-texture {
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(139, 115, 85, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(205, 127, 50, 0.1) 0%, transparent 50%);
+    background-color: var(--neutral-sand);
+}
+
+/* ===== CIVILIZATION THEMES ===== */
+.civ-babylon {
+    --civ-primary: var(--babylon-primary);
+    --civ-secondary: var(--babylon-secondary);
+    --civ-accent: var(--babylon-accent);
+}
+
+.civ-assyria {
+    --civ-primary: var(--assyria-primary);
+    --civ-secondary: var(--assyria-secondary);
+    --civ-accent: var(--assyria-accent);
+}
+
+.civ-egypt {
+    --civ-primary: var(--egypt-primary);
+    --civ-secondary: var(--egypt-secondary);
+    --civ-accent: var(--egypt-accent);
+}
+
+.civ-persia {
+    --civ-primary: var(--persia-primary);
+    --civ-secondary: var(--persia-secondary);
+    --civ-accent: var(--persia-accent);
+}
+
+.civ-phoenicia {
+    --civ-primary: var(--phoenicia-primary);
+    --civ-secondary: var(--phoenicia-secondary);
+    --civ-accent: var(--phoenicia-accent);
+}
+
+.civ-hittites {
+    --civ-primary: var(--hittites-primary);
+    --civ-secondary: var(--hittites-secondary);
+    --civ-accent: var(--hittites-accent);
+}
+
+.civ-elam {
+    --civ-primary: var(--elam-primary);
+    --civ-secondary: var(--elam-secondary);
+    --civ-accent: var(--elam-accent);
+}
+
+/* Apply civilization colors to units and territories */
+.unit {
+    border: 2px solid var(--civ-primary);
+    background-color: var(--civ-secondary);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.territory {
+    stroke: var(--civ-primary);
+    stroke-width: 2;
+    fill: var(--civ-secondary);
+    fill-opacity: 0.3;
+}
+
+.supply-center {
+    fill: var(--civ-primary);
+    stroke: var(--civ-accent);
+    stroke-width: 2;
+}
+
+/* ===== GAME BOARD THEMING ===== */
+.game-map {
+    background: linear-gradient(135deg, 
+        var(--terrain-desert) 0%, 
+        rgba(244, 228, 188, 0.8) 50%, 
+        var(--terrain-desert) 100%);
+}
+
+.region-land {
+    fill: var(--terrain-desert);
+    stroke: var(--neutral-stone);
+    stroke-width: 1;
+    transition: fill var(--transition-fast);
+}
+
+.region-land:hover {
+    fill: rgba(212, 175, 55, 0.2);
+    cursor: pointer;
+}
+
+.region-water {
+    fill: var(--terrain-water);
+    stroke: var(--secondary-deep-blue);
+    stroke-width: 1;
+}
+
+.region-mountains {
+    fill: var(--terrain-mountains);
+    stroke: var(--neutral-dark-stone);
+    stroke-width: 1;
+}
+
+.region-fertile {
+    fill: var(--terrain-fertile);
+    stroke: var(--neutral-stone);
+    stroke-width: 1;
+}
+
+.region-city {
+    fill: var(--terrain-city);
+    stroke: var(--neutral-charcoal);
+    stroke-width: 2;
+}
+
+/* Supply center styling */
+.supply-center-marker {
+    fill: var(--primary-gold);
+    stroke: var(--neutral-charcoal);
+    stroke-width: 2;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Unit styling */
+.unit-army {
+    fill: var(--civ-primary);
+    stroke: var(--neutral-charcoal);
+    stroke-width: 2;
+}
+
+.unit-fleet {
+    fill: var(--civ-secondary);
+    stroke: var(--neutral-charcoal);
+    stroke-width: 2;
+}
+
+/* ===== ANCIENT DECORATIVE PATTERNS ===== */
+.mesopotamian-border {
+    border-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><rect width='20' height='20' fill='%23D4AF37'/><rect x='2' y='2' width='16' height='16' fill='%23F5F5DC'/><rect x='4' y='4' width='12' height='12' fill='%23D4AF37'/><rect x='6' y='6' width='8' height='8' fill='%23F5F5DC'/></svg>") 10 repeat;
+}
+
+.egyptian-border {
+    background-image: 
+        linear-gradient(45deg, var(--egypt-primary) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--egypt-primary) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--egypt-primary) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--egypt-primary) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* ===== CARD AND PANEL THEMING ===== */
+.ancient-card {
+    background: linear-gradient(135deg, 
+        rgba(245, 245, 220, 0.95) 0%, 
+        rgba(244, 228, 188, 0.95) 100%);
+    border: 2px solid var(--primary-gold);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ancient-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--primary-gold) 0%, 
+        var(--primary-bronze) 50%, 
+        var(--primary-gold) 100%);
+}
+
+.ancient-panel {
+    background: var(--papyrus-texture);
+    border: 1px solid var(--border-color);
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 4px 8px rgba(44, 24, 16, 0.1);
+}
+
+/* ===== BUTTON THEMING ===== */
+.btn-ancient {
+    background: linear-gradient(135deg, 
+        var(--primary-gold) 0%, 
+        var(--primary-bronze) 100%);
+    color: var(--neutral-charcoal);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.btn-ancient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        transparent 100%);
+    transition: left var(--transition-normal);
+}
+
+.btn-ancient:hover::before {
+    left: 100%;
+}
+
+/* ===== TOOLTIP THEMING ===== */
+.ancient-tooltip {
+    background-color: var(--neutral-charcoal);
+    color: var(--text-light);
+    border: 1px solid var(--primary-gold);
+    border-radius: 4px;
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+}
+
+.ancient-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--primary-gold) transparent transparent transparent;
+}
+
+/* ===== PROGRESS INDICATORS ===== */
+.ancient-progress {
+    width: 100%;
+    height: 8px;
+    background-color: var(--neutral-stone);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ancient-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, 
+        var(--primary-gold) 0%, 
+        var(--primary-bronze) 100%);
+    transition: width var(--transition-normal);
+}
+
+/* ===== LOADING ANIMATIONS ===== */
+.ancient-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--neutral-stone);
+    border-top: 4px solid var(--primary-gold);
+    border-radius: 50%;
+    animation: ancientSpin 1s linear infinite;
+}
+
+@keyframes ancientSpin {
+    0% { 
+        transform: rotate(0deg);
+        border-top-color: var(--primary-gold);
+    }
+    25% { 
+        border-top-color: var(--primary-bronze);
+    }
+    50% { 
+        border-top-color: var(--primary-terracotta);
+    }
+    75% { 
+        border-top-color: var(--primary-bronze);
+    }
+    100% { 
+        transform: rotate(360deg);
+        border-top-color: var(--primary-gold);
+    }
+}
+
+/* ===== RESPONSIVE THEME ADJUSTMENTS ===== */
+@media (max-width: 768px) {
+    .ancient-card {
+        border-width: 1px;
+    }
+    
+    .ancient-card::before {
+        height: 3px;
+    }
+    
+    .btn-ancient {
+        letter-spacing: 0.25px;
+    }
+    
+    .theme-ancient .app-title {
+        letter-spacing: 0.5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mesopotamian-border,
+    .egyptian-border {
+        background-size: 15px 15px;
+    }
+    
+    .theme-ancient .logo h1 {
+        letter-spacing: 1px;
+    }
+}
+
+/* ===== ACCESSIBILITY THEME SUPPORT ===== */
+@media (prefers-reduced-motion: reduce) {
+    .btn-ancient::before {
+        transition: none;
+    }
+    
+    .ancient-spinner {
+        animation: none;
+        border-top-color: var(--primary-gold);
+    }
+}
+
+@media (prefers-contrast: high) {
+    .ancient-card {
+        border-width: 3px;
+    }
+    
+    .unit,
+    .territory {
+        stroke-width: 3;
+    }
+    
+    .supply-center-marker {
+        stroke-width: 3;
+    }
+}
+
+/* ===== DARK MODE PREPARATION ===== */
+@media (prefers-color-scheme: dark) {
+    .theme-ancient.dark-mode {
+        --bg-primary: var(--neutral-charcoal);
+        --bg-secondary: var(--neutral-dark-stone);
+        --text-primary: var(--neutral-sand);
+        --text-secondary: var(--neutral-stone);
+        
+        --terrain-desert: #3A2F1A;
+        --terrain-mountains: #2D2419;
+        --terrain-fertile: #1A3A1A;
+    }
+    
+    .theme-ancient.dark-mode .ancient-card {
+        background: linear-gradient(135deg, 
+            rgba(44, 24, 16, 0.95) 0%, 
+            rgba(93, 78, 55, 0.95) 100%);
+    }
+    
+    .theme-ancient.dark-mode .game-map {
+        background: linear-gradient(135deg, 
+            var(--terrain-desert) 0%, 
+            rgba(58, 47, 26, 0.8) 50%, 
+            var(--terrain-desert) 100%);
+    }
+}

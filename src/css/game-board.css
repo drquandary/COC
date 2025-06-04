@@ -1,0 +1,331 @@
+/* ===== GAME BOARD STYLES ===== */
+
+.game-board-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.game-board-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+}
+
+.game-board-svg:active {
+    cursor: grabbing;
+}
+
+/* Region Styles */
+.region {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.region:hover {
+    opacity: 0.8;
+}
+
+.region-shape {
+    stroke: #4A5568;
+    stroke-width: 1;
+    transition: all 0.3s ease;
+}
+
+.region-shape:hover {
+    stroke-width: 2;
+    stroke: #2D3748;
+}
+
+/* Terrain-based styling */
+.terrain-desert {
+    fill: #F7DC6F;
+}
+
+.terrain-mountains {
+    fill: #85929E;
+}
+
+.terrain-fertile {
+    fill: #58D68D;
+}
+
+.terrain-water {
+    fill: #5DADE2;
+    stroke: #3498DB;
+}
+
+.terrain-city {
+    fill: #E8DAEF;
+    stroke: #8E44AD;
+}
+
+/* Civilization ownership colors */
+.owner-babylon .region-shape {
+    fill: #FFD700;
+    stroke: #B8860B;
+}
+
+.owner-assyria .region-shape {
+    fill: #DC143C;
+    stroke: #8B0000;
+}
+
+.owner-egypt .region-shape {
+    fill: #4169E1;
+    stroke: #191970;
+}
+
+.owner-persia .region-shape {
+    fill: #9370DB;
+    stroke: #4B0082;
+}
+
+.owner-phoenicia .region-shape {
+    fill: #20B2AA;
+    stroke: #008B8B;
+}
+
+.owner-hittites .region-shape {
+    fill: #CD853F;
+    stroke: #8B4513;
+}
+
+.owner-elam .region-shape {
+    fill: #32CD32;
+    stroke: #228B22;
+}
+
+/* Region connections */
+.region-connection {
+    stroke: #6C757D;
+    stroke-width: 1;
+    stroke-dasharray: 2,2;
+    opacity: 0.6;
+}
+
+/* Region labels */
+.region-label {
+    fill: #2C3E50;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-anchor: middle;
+    pointer-events: none;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Supply center indicators */
+.supply-center-indicator {
+    fill: #E74C3C;
+    stroke: #C0392B;
+    stroke-width: 1;
+}
+
+/* Unit styles */
+.unit {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.unit:hover {
+    transform: scale(1.1);
+}
+
+.unit.selected {
+    transform: scale(1.2);
+}
+
+.unit-background {
+    stroke: #2C3E50;
+    stroke-width: 2;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.unit-symbol {
+    fill: #FFFFFF;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    text-anchor: middle;
+    pointer-events: none;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Order visualization */
+.order-arrow {
+    stroke-width: 3;
+    stroke-linecap: round;
+    marker-end: url(#arrowhead);
+}
+
+.order-move {
+    stroke: #3498DB;
+}
+
+.order-move.successful {
+    stroke: #27AE60;
+}
+
+.order-move.failed {
+    stroke: #E74C3C;
+    stroke-dasharray: 5,5;
+}
+
+.order-support {
+    stroke: #F39C12;
+    stroke-dasharray: 5,5;
+}
+
+.order-support.successful {
+    stroke: #F1C40F;
+}
+
+.order-support.failed {
+    stroke: #E67E22;
+}
+
+.convoy-indicator {
+    fill: none;
+    stroke: #3B82F6;
+    stroke-width: 2;
+    stroke-dasharray: 3,3;
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Region highlighting */
+.region.valid-move .region-shape {
+    fill: #2ECC71;
+    stroke: #27AE60;
+    stroke-width: 2;
+    animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+.region.highlighted .region-shape {
+    stroke: #F39C12;
+    stroke-width: 3;
+    filter: drop-shadow(0 0 8px rgba(243, 156, 18, 0.6));
+}
+
+@keyframes pulse {
+    from {
+        opacity: 0.6;
+    }
+    to {
+        opacity: 1.0;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .region-label {
+        font-size: 8px;
+    }
+    
+    .unit-symbol {
+        font-size: 10px;
+    }
+    
+    .region-shape {
+        stroke-width: 2;
+    }
+    
+    .unit-background {
+        r: 10;
+    }
+    
+    .order-arrow {
+        stroke-width: 4;
+    }
+}
+
+/* Touch-friendly sizing for mobile */
+@media (max-width: 480px) {
+    .region {
+        /* Larger touch targets */
+    }
+    
+    .unit {
+        /* Larger touch targets */
+    }
+    
+    .region-label {
+        font-size: 7px;
+    }
+}
+
+/* Arrow markers for SVG */
+.game-board-svg defs marker {
+    overflow: visible;
+}
+
+.game-board-svg defs marker path {
+    fill: inherit;
+    stroke: none;
+}
+
+/* Game board container layout */
+.game-container {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    grid-template-rows: 1fr;
+    height: calc(100vh - 60px);
+    gap: 16px;
+    padding: 16px;
+    background: #F8F9FA;
+}
+
+@media (max-width: 1024px) {
+    .game-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-container {
+        grid-template-rows: 1fr 250px;
+        padding: 8px;
+        gap: 8px;
+    }
+}
+
+/* Loading states */
+.game-board-container.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #E9ECEF 0%, #CED4DA 100%);
+}
+
+.game-board-container.loading::before {
+    content: "Loading map...";
+    color: #6C757D;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Error states */
+.game-board-container.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F8D7DA;
+    color: #721C24;
+}
+
+.game-board-container.error::before {
+    content: "Failed to load map";
+    font-size: 16px;
+    font-weight: 500;
+}

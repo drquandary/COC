@@ -1,0 +1,38 @@
+{
+  "name": "cradle-of-civilization",
+  "version": "1.0.0",
+  "description": "A mobile-friendly web version of Diplomacy themed around the ancient Middle East",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "live-server public --port=3000",
+    "serve": "node server.js",
+    "build": "npm run minify-css && npm run minify-js",
+    "minify-css": "cleancss -o public/css/main.min.css src/css/main.css src/css/mobile.css src/css/themes.css",
+    "minify-js": "terser src/js/**/*.js -o public/js/app.min.js",
+    "test": "jest",
+    "deploy": "firebase deploy",
+    "firebase-init": "firebase init"
+  },
+  "keywords": [
+    "diplomacy",
+    "strategy",
+    "board-game",
+    "ancient",
+    "middle-east",
+    "mobile"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "clean-css-cli": "^5.6.2",
+    "jest": "^29.6.2",
+    "live-server": "^1.2.2",
+    "puppeteer": "^24.9.0",
+    "terser": "^5.19.2"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "firebase": "^10.1.0"
+  }
+}

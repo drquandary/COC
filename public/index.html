@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Cradle of Civilization - A strategic diplomacy game set in the ancient Middle East">
+    <meta name="theme-color" content="#8B4513">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Cradle of Civilization">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/src/css/main.css">
+    <link rel="stylesheet" href="/src/css/mobile.css">
+    <link rel="stylesheet" href="/src/css/themes.css">
+    <link rel="stylesheet" href="/src/css/game-board.css">
+    <link rel="stylesheet" href="/src/css/game-ui.css">
+    
+    <title>Cradle of Civilization</title>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="logo">
+                <h1>Cradle of Civilization</h1>
+                <p>Ancient Middle East Diplomacy</p>
+            </div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="app hidden">
+        <!-- Navigation Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+                    <span class="hamburger"></span>
+                </button>
+                <h1 class="app-title">Cradle of Civilization</h1>
+                <div class="user-controls">
+                    <button id="notifications-btn" class="icon-btn" aria-label="Notifications">
+                        <span class="notification-icon">🔔</span>
+                        <span id="notification-count" class="notification-count hidden">0</span>
+                    </button>
+                    <button id="user-menu-btn" class="icon-btn" aria-label="User menu">
+                        <span class="user-icon">👤</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Side Navigation -->
+        <nav id="side-nav" class="side-nav">
+            <div class="nav-content">
+                <div class="nav-header">
+                    <h2>Menu</h2>
+                    <button id="nav-close" class="nav-close" aria-label="Close menu">×</button>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#dashboard" data-route="dashboard">Dashboard</a></li>
+                    <li><a href="#games" data-route="games">Active Games</a></li>
+                    <li><a href="#create-game" data-route="create-game">Create Game</a></li>
+                    <li><a href="#join-game" data-route="join-game">Join Game</a></li>
+                    <li><a href="#history" data-route="history">Game History</a></li>
+                    <li><a href="#rules" data-route="rules">Rules & Help</a></li>
+                    <li><a href="#settings" data-route="settings">Settings</a></li>
+                </ul>
+                <div class="nav-footer">
+                    <button id="logout-btn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="main-content">
+            <!-- Auth Screen -->
+            <div id="auth-screen" class="screen">
+                <div class="auth-container">
+                    <div class="auth-header">
+                        <h2>Welcome to Cradle of Civilization</h2>
+                        <p>Experience the ancient art of diplomacy</p>
+                    </div>
+                    
+                    <div class="auth-tabs">
+                        <button id="login-tab" class="auth-tab active">Login</button>
+                        <button id="register-tab" class="auth-tab">Register</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <div class="form-footer">
+                            <a href="#" id="forgot-password">Forgot Password?</a>
+                        </div>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="register-form" class="auth-form hidden">
+                        <div class="form-group">
+                            <label for="register-email">Email</label>
+                            <input type="email" id="register-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-display-name">Display Name</label>
+                            <input type="text" id="register-display-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-confirm-password">Confirm Password</label>
+                            <input type="password" id="register-confirm-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Dashboard Screen -->
+            <div id="dashboard-screen" class="screen hidden">
+                <div class="screen-header">
+                    <h2>Dashboard</h2>
+                </div>
+                <div class="dashboard-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Active Games</h3>
+                            <span id="active-games-count" class="stat-number">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Your Turn</h3>
+                            <span id="pending-turns-count" class="stat-number">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Games</h3>
+                            <span id="total-games-count" class="stat-number">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Win Rate</h3>
+                            <span id="win-rate" class="stat-number">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" data-route="create-game">Create New Game</button>
+                            <button class="btn btn-secondary" data-route="join-game">Join Game</button>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div id="activity-list" class="activity-list">
+                            <!-- Activity items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games List Screen -->
+            <div id="games-screen" class="screen hidden">
+                <div class="screen-header">
+                    <h2>Games</h2>
+                    <button id="refresh-games-btn" class="btn btn-secondary">Refresh</button>
+                </div>
+                <div class="games-content">
+                    <div id="games-list" class="games-list">
+                        <!-- Games will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Game Screen -->
+            <div id="create-game-screen" class="screen hidden">
+                <div class="screen-header">
+                    <h2>Create New Game</h2>
+                </div>
+                <div class="create-game-content">
+                    <form id="create-game-form" class="game-form">
+                        <div class="form-group">
+                            <label for="game-name">Game Name</label>
+                            <input type="text" id="game-name" name="game-name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Description (optional)</label>
+                            <textarea id="description" name="description" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="max-players">Max Players</label>
+                                <select id="max-players" name="max-players">
+                                    <option value="2">2 Players</option>
+                                    <option value="3">3 Players</option>
+                                    <option value="4">4 Players</option>
+                                    <option value="5">5 Players</option>
+                                    <option value="6">6 Players</option>
+                                    <option value="7" selected>7 Players</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="turn-length">Turn Length</label>
+                                <select id="turn-length" name="turn-length">
+                                    <option value="24">24 Hours</option>
+                                    <option value="48" selected>48 Hours</option>
+                                    <option value="72">72 Hours</option>
+                                    <option value="168">1 Week</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="civilization-select">Your Civilization</label>
+                            <select id="civilization-select" name="civilization" required>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="is-private">
+                                Private Game (requires password)
+                            </label>
+                        </div>
+
+                        <div class="form-group" id="password-group" style="display: none;">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="allow-spectators">
+                                Allow Spectators
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Create Game</button>
+                            <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="game-screen" class="screen hidden">
+                <div class="game-container" id="game-container">
+                    <!-- Game Board Container -->
+                    <div id="game-board-container" class="game-board-container">
+                        <!-- SVG game board will be rendered here -->
+                    </div>
+                    
+                    <!-- Game UI Container -->
+                    <div id="game-ui-container" class="game-ui-container">
+                        <!-- Game UI components will be rendered here -->
+                    </div>
+                </div>
+            </div>
+            <div id="loading-content" class="screen hidden">
+                <div class="loading-message">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- Modal Overlay -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div id="modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="/src/js/utils/constants.js"></script>
+    <script type="module" src="/src/js/utils/helpers.js"></script>
+    <script type="module" src="/src/js/services/firebase-service.js"></script>
+<script type="module" src="/src/js/core/demo-auth.js"></script>
+    <script type="module" src="/src/js/services/game-service.js"></script>
+    <script type="module" src="/src/js/components/game-board.js"></script>
+    <script type="module" src="/src/js/components/game-ui.js"></script>
+    <script type="module" src="/src/js/core/game-engine.js"></script>
+    <script type="module" src="/src/js/core/app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+    
+    <!-- Demo Mode Notice -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show helpful instructions after app loads
+            setTimeout(() => {
+                if (window.cradleApp && window.cradleApp.demoMode) {
+                    console.log('🎭 Demo Mode Active');
+                    console.log('📝 To test login: Use any email (must contain @) and password (6+ chars)');
+                    console.log('📝 To test registration: Fill all fields, passwords must match');
+                    
+                    // Show a subtle notice to the user
+                    const authContainer = document.querySelector('.auth-container');
+                    if (authContainer) {
+                        const notice = document.createElement('div');
+                        notice.style.cssText = 'background: #e8f5e8; border: 1px solid #4caf50; padding: 10px; margin-bottom: 20px; border-radius: 4px; font-size: 14px; color: #2e7d32;';
+                        notice.innerHTML = '🎭 <strong>Demo Mode:</strong> Use any email (with @) and password (6+ chars) to test the app';
+                        authContainer.insertBefore(notice, authContainer.firstChild);
+                    }
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

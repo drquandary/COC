@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Complete Working Game</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+        }
+        .main-area { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr; 
+            gap: 20px; 
+            height: 700px;
+        }
+        .game-board { 
+            background: white; 
+            border: 2px solid #34495e; 
+            border-radius: 8px; 
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar { 
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .game-info, .controls, .log-container { 
+            background: white; 
+            border: 2px solid #34495e; 
+            border-radius: 8px; 
+            padding: 20px;
+        }
+        .region { 
+            position: absolute; 
+            width: 80px; 
+            height: 50px; 
+            border: 2px solid #7f8c8d; 
+            border-radius: 6px; 
+            background: #ecf0f1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 11px; 
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .region:hover { 
+            background: #bdc3c7; 
+            border-color: #2c3e50; 
+            z-index: 5;
+        }
+        .region.supply-center { 
+            background: #f39c12; 
+            border-color: #e67e22;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+        }
+        .region.supply-center:hover { 
+            background: #e67e22; 
+        }
+        .unit { 
+            position: absolute; 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            border: 3px solid white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .unit:hover {
+            transform: scale(1.2);
+            z-index: 15;
+        }
+        .unit.army { background: #e74c3c; }
+        .unit.fleet { background: #3498db; }
+        .civilization { 
+            font-weight: bold; 
+            font-size: 20px; 
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .stats { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            margin-bottom: 20px;
+        }
+        .stat { 
+            background: #ecf0f1; 
+            padding: 15px; 
+            border-radius: 5px; 
+            text-align: center;
+        }
+        .stat-number { 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #2c3e50; 
+        }
+        .btn { 
+            background: #3498db; 
+            color: white; 
+            border: none; 
+            padding: 12px 18px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .btn:hover { background: #2980b9; }
+        .btn.success { background: #27ae60; }
+        .btn.success:hover { background: #229954; }
+        .btn.danger { background: #e74c3c; }
+        .btn.danger:hover { background: #c0392b; }
+        .log { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            font-size: 11px; 
+            height: 200px; 
+            overflow-y: auto;
+        }
+        .test-status {
+            background: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .test-pass { background: #d4edda; color: #155724; }
+        .test-fail { background: #f8d7da; color: #721c24; }
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .status-item {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .status-ok { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Complete Working Cradle of Civilization</h1>
+            <p>Self-Testing Ancient Middle East Diplomacy Game</p>
+        </div>
+
+        <div class="main-area">
+            <div class="game-board" id="gameBoard">
+                <h3>Ancient Middle East Map</h3>
+                <div id="mapContainer"></div>
+            </div>
+
+            <div class="sidebar">
+                <div class="game-info">
+                    <div class="civilization" id="playerCiv">Not Logged In</div>
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-number" id="supplyCenterCount">0</div>
+                            <div>Supply Centers</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number" id="unitCount">0</div>
+                            <div>Units</div>
+                        </div>
+                    </div>
+                    <div class="status-grid">
+                        <div class="status-item" id="authStatus">Auth: ❌</div>
+                        <div class="status-item" id="gameStatus">Game: ❌</div>
+                        <div class="status-item" id="playerStatus">Player: ❌</div>
+                        <div class="status-item" id="unitsStatus">Units: ❌</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn success" onclick="runFullTest()">🚀 Auto Test Everything</button>
+                    <button class="btn" onclick="testAuth()">🔐 Test Auth Only</button>
+                    <button class="btn" onclick="createTestGame()">🎮 Create Game</button>
+                    <button class="btn danger" onclick="resetEverything()">🔄 Reset All</button>
+                </div>
+
+                <div class="log-container">
+                    <h4>System Log</h4>
+                    <div class="log" id="gameLog"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        let gameState = null;
+        let currentPlayer = null;
+        let demoAuthService = null;
+        let gameService = null;
+        let gameConstants = null;
+
+        function log(message, type = 'info') {
+            const gameLog = document.getElementById('gameLog');
+            const time = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'debug' ? '🔍' : 'ℹ️';
+            gameLog.innerHTML += `[${time}] ${prefix} ${message}\n`;
+            gameLog.scrollTop = gameLog.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateStatus(id, status, text = '') {
+            const element = document.getElementById(id);
+            if (status) {
+                element.className = 'status-item status-ok';
+                element.textContent = text || element.textContent.replace('❌', '✅');
+            } else {
+                element.className = 'status-item status-error';
+                element.textContent = text || element.textContent.replace('✅', '❌');
+            }
+        }
+
+        function updatePlayerInfo() {
+            if (!currentPlayer) {
+                document.getElementById('playerCiv').textContent = 'Not Logged In';
+                document.getElementById('supplyCenterCount').textContent = '0';
+                document.getElementById('unitCount').textContent = '0';
+                return;
+            }
+
+            document.getElementById('playerCiv').textContent = 
+                currentPlayer.civilizationData?.name || 'Unknown Civilization';
+            document.getElementById('supplyCenterCount').textContent = 
+                currentPlayer.supplyCenters?.length || 0;
+            document.getElementById('unitCount').textContent = 
+                currentPlayer.units?.length || 0;
+        }
+
+        async function loadConstants() {
+            if (!gameConstants) {
+                gameConstants = await import('./src/js/utils/constants.js');
+                log('Constants loaded', 'success');
+            }
+            return gameConstants;
+        }
+
+        async function renderMap() {
+            try {
+                const constants = await loadConstants();
+                const { MAP_REGIONS } = constants;
+                
+                const mapContainer = document.getElementById('mapContainer');
+                mapContainer.innerHTML = '';
+
+                log(`Rendering ${Object.keys(MAP_REGIONS).length} regions`);
+
+                Object.entries(MAP_REGIONS).forEach(([regionId, region], index) => {
+                    const regionDiv = document.createElement('div');
+                    regionDiv.className = 'region' + (region.isSupplyCenter ? ' supply-center' : '');
+                    
+                    // Better positioning algorithm
+                    const x = region.coordinates?.x || (50 + (index % 8) * 100);
+                    const y = region.coordinates?.y || (50 + Math.floor(index / 8) * 80);
+                    
+                    regionDiv.style.left = x + 'px';
+                    regionDiv.style.top = y + 'px';
+                    regionDiv.textContent = region.name.substring(0, 8);
+                    regionDiv.title = `${region.name}${region.isSupplyCenter ? ' (Supply Center)' : ''}\nTerrain: ${region.terrain}`;
+                    regionDiv.onclick = () => {
+                        log(`Clicked region: ${region.name}`, 'debug');
+                    };
+                    mapContainer.appendChild(regionDiv);
+                });
+
+                log('Map rendered successfully', 'success');
+            } catch (error) {
+                log(`Map rendering failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function renderUnits() {
+            try {
+                log('Starting unit rendering...');
+                
+                if (!gameState || !gameState.units) {
+                    log('No units to render', 'debug');
+                    return;
+                }
+
+                const constants = await loadConstants();
+                const { MAP_REGIONS } = constants;
+                const mapContainer = document.getElementById('mapContainer');
+                
+                // Remove existing units
+                const existingUnits = mapContainer.querySelectorAll('.unit');
+                existingUnits.forEach(unit => unit.remove());
+
+                const units = Array.isArray(gameState.units) ? gameState.units : [];
+                log(`Rendering ${units.length} units`);
+
+                units.forEach((unit, index) => {
+                    // Detailed unit debugging
+                    log(`Unit ${index}: type=${unit.type}, region=${unit.region}, playerId=${unit.playerId}`, 'debug');
+                    
+                    const region = MAP_REGIONS[unit.region];
+                    if (!region) {
+                        log(`Warning: Region ${unit.region} not found in MAP_REGIONS`, 'error');
+                    }
+                    
+                    const unitDiv = document.createElement('div');
+                    unitDiv.className = `unit ${unit.type}`;
+                    
+                    // Position unit on or near its region
+                    const baseX = region?.coordinates?.x || (50 + (index % 8) * 100);
+                    const baseY = region?.coordinates?.y || (50 + Math.floor(index / 8) * 80);
+                    
+                    unitDiv.style.left = (baseX + 25) + 'px';
+                    unitDiv.style.top = (baseY + 10) + 'px';
+                    unitDiv.textContent = unit.type === 'army' ? 'A' : 'F';
+                    unitDiv.title = `${unit.type.toUpperCase()} in ${unit.region || 'Unknown'} (${unit.playerId})`;
+                    unitDiv.onclick = () => {
+                        log(`Selected ${unit.type} in ${unit.region || 'Unknown'}`, 'success');
+                    };
+                    
+                    mapContainer.appendChild(unitDiv);
+                    log(`Unit ${index} rendered at (${baseX + 25}, ${baseY + 10})`, 'debug');
+                });
+
+                log(`Successfully rendered ${units.length} units`, 'success');
+                updateStatus('unitsStatus', true, `Units: ${units.length} ✅`);
+
+            } catch (error) {
+                log(`Unit rendering failed: ${error.message}`, 'error');
+                updateStatus('unitsStatus', false, 'Units: Error ❌');
+            }
+        }
+
+        window.testAuth = async function() {
+            try {
+                log('Testing authentication system...');
+                
+                // Import demo auth
+                const demoAuthModule = await import('./src/js/core/demo-auth.js');
+                demoAuthService = demoAuthModule.default;
+                demoAuthService.initialize();
+                log('Demo auth service initialized', 'success');
+
+                // Test login
+                const user = await demoAuthService.login('test@example.com', 'password123');
+                log(`Login successful: ${user.email}`, 'success');
+                
+                updateStatus('authStatus', true, 'Auth: ✅');
+                return true;
+
+            } catch (error) {
+                log(`Authentication test failed: ${error.message}`, 'error');
+                updateStatus('authStatus', false, 'Auth: ❌');
+                return false;
+            }
+        };
+
+        window.createTestGame = async function() {
+            try {
+                if (!demoAuthService) {
+                    log('Authentication required first', 'error');
+                    return false;
+                }
+
+                log('Testing game creation...');
+                
+                // Import game service (with cache bust)
+                const timestamp = Date.now();
+                const gameServiceModule = await import(`./src/js/services/game-service.js?v=${timestamp}`);
+                gameService = gameServiceModule.default;
+                gameService.demoMode = true;
+                log('Game service initialized in demo mode', 'success');
+
+                // Create game
+                const gameConfig = {
+                    name: 'Complete Test Game',
+                    description: 'Full working test',
+                    maxPlayers: 7,
+                    turnLengthHours: 48,
+                    isPrivate: false,
+                    allowSpectators: true
+                };
+
+                const gameId = await gameService.createGame(gameConfig);
+                log(`Game created successfully: ${gameId}`, 'success');
+                updateStatus('gameStatus', true, 'Game: ✅');
+
+                // Join game
+                const constants = await loadConstants();
+                const { CIVILIZATIONS } = constants;
+                const firstCiv = Object.keys(CIVILIZATIONS)[0].toLowerCase();
+                
+                const joinResult = await gameService.joinGame(gameId, firstCiv);
+                log(`Joined as ${firstCiv}: ${joinResult.playerId}`, 'success');
+                updateStatus('playerStatus', true, 'Player: ✅');
+
+                // Validate game state
+                await validateGameState();
+                return true;
+
+            } catch (error) {
+                log(`Game creation failed: ${error.message}`, 'error');
+                updateStatus('gameStatus', false, 'Game: ❌');
+                return false;
+            }
+        };
+
+        async function validateGameState() {
+            try {
+                log('Validating game state...');
+
+                // Check game engine
+                if (!gameService.gameEngine) {
+                    throw new Error('No game engine found');
+                }
+                log('Game engine exists', 'debug');
+
+                // Check raw game state
+                const rawGameState = gameService.gameEngine.gameState;
+                if (!rawGameState) {
+                    throw new Error('No raw game state found');
+                }
+                log(`Raw game state: players=${rawGameState.players.size}, units=${rawGameState.units.size}`, 'debug');
+
+                // Get processed game state
+                gameState = gameService.getCurrentGameState();
+                if (!gameState) {
+                    throw new Error('getCurrentGameState returned null');
+                }
+                log(`Processed game state: players=${gameState.players.length}, units=${gameState.units.length}`, 'debug');
+
+                // Validate player data
+                if (gameState.players.length === 0) {
+                    throw new Error('No players in game state');
+                }
+
+                currentPlayer = gameState.players[0];
+                log(`Current player: ${currentPlayer.civilization}`, 'debug');
+
+                // Validate units
+                if (gameState.units.length === 0) {
+                    log('Warning: No units found in game state', 'error');
+                } else {
+                    log(`Found ${gameState.units.length} units`, 'success');
+                    gameState.units.forEach((unit, i) => {
+                        log(`Unit ${i}: ${unit.type} in region '${unit.region}' for player ${unit.playerId}`, 'debug');
+                    });
+                }
+
+                updatePlayerInfo();
+                await renderUnits();
+                
+                log('Game state validation complete', 'success');
+                return true;
+
+            } catch (error) {
+                log(`Game state validation failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        window.runFullTest = async function() {
+            log('🚀 Starting complete automated test...', 'success');
+            
+            try {
+                // Step 1: Test authentication
+                log('Step 1: Testing authentication...');
+                const authSuccess = await testAuth();
+                if (!authSuccess) throw new Error('Authentication failed');
+
+                // Step 2: Create and join game
+                log('Step 2: Creating and joining game...');
+                const gameSuccess = await createTestGame();
+                if (!gameSuccess) throw new Error('Game creation failed');
+
+                log('🎉 All tests completed successfully!', 'success');
+
+            } catch (error) {
+                log(`❌ Full test failed: ${error.message}`, 'error');
+            }
+        };
+
+        window.resetEverything = function() {
+            gameState = null;
+            currentPlayer = null;
+            demoAuthService = null;
+            gameService = null;
+            
+            document.getElementById('mapContainer').innerHTML = '';
+            document.getElementById('gameLog').innerHTML = '';
+            document.getElementById('playerCiv').textContent = 'Not Logged In';
+            document.getElementById('supplyCenterCount').textContent = '0';
+            document.getElementById('unitCount').textContent = '0';
+            
+            updateStatus('authStatus', false, 'Auth: ❌');
+            updateStatus('gameStatus', false, 'Game: ❌');
+            updateStatus('playerStatus', false, 'Player: ❌');
+            updateStatus('unitsStatus', false, 'Units: ❌');
+            
+            log('🔄 Complete reset performed', 'success');
+            renderMap();
+        };
+
+        // Initialize
+        log('🎮 Complete Working Game loaded');
+        log('💡 Click "Auto Test Everything" to run full test');
+        renderMap();
+    </script>
+</body>
+</html>

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Playable Game with Orders</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: #f5f5f5;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        /* Screen System */
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        /* Auth Screen */
+        .auth-screen {
+            max-width: 400px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Game Screen */
+        .game-screen {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 20px;
+            height: 80vh;
+        }
+        .game-board { 
+            background: white; 
+            border: 2px solid #34495e; 
+            border-radius: 8px; 
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-sidebar { 
+            background: white; 
+            border: 2px solid #34495e; 
+            border-radius: 8px; 
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        /* Game Elements */
+        .region { 
+            position: absolute; 
+            width: 80px; 
+            height: 50px; 
+            border: 2px solid #7f8c8d; 
+            border-radius: 6px; 
+            background: #ecf0f1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 10px; 
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .region:hover { 
+            background: #d5dbdb; 
+            border-color: #2c3e50;
+            z-index: 5;
+        }
+        .region.supply-center { 
+            background: #f39c12; 
+            border-color: #e67e22;
+            box-shadow: 0 0 8px rgba(243, 156, 18, 0.4);
+        }
+        .region.supply-center:hover { 
+            background: #e67e22;
+        }
+        .region.selected {
+            border-color: #3498db;
+            border-width: 3px;
+            background: #e8f6fd;
+        }
+        .region.move-target {
+            border-color: #27ae60;
+            border-width: 3px;
+            background: #e8f5e8;
+        }
+        
+        .unit { 
+            position: absolute; 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            border: 3px solid white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .unit:hover {
+            transform: scale(1.2);
+            z-index: 15;
+        }
+        .unit.army { background: #e74c3c; }
+        .unit.fleet { background: #3498db; }
+        .unit.selected {
+            border-color: #f1c40f;
+            border-width: 4px;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(241, 196, 0, 0.6);
+        }
+        
+        /* Forms and Controls */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+        }
+        .btn { 
+            background: #3498db; 
+            color: white; 
+            border: none; 
+            padding: 12px 18px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px 0; 
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .btn:hover { background: #2980b9; }
+        .btn:disabled { background: #95a5a6; cursor: not-allowed; }
+        .btn.success { background: #27ae60; }
+        .btn.success:hover { background: #229954; }
+        .btn.danger { background: #e74c3c; }
+        .btn.danger:hover { background: #c0392b; }
+        .btn.full-width { width: 100%; }
+        .btn.small { padding: 8px 12px; font-size: 12px; }
+        
+        /* Game UI */
+        .player-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .order-panel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .order-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background: white;
+        }
+        .order-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 3px;
+            border-left: 4px solid #3498db;
+            font-size: 12px;
+        }
+        .order-item .order-text {
+            font-weight: bold;
+        }
+        .order-item .order-meta {
+            color: #666;
+            font-size: 10px;
+        }
+        .game-phase {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .log { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            font-size: 11px; 
+            height: 150px; 
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        
+        /* Connection Lines */
+        .move-line {
+            position: absolute;
+            height: 2px;
+            background: #27ae60;
+            z-index: 8;
+            pointer-events: none;
+        }
+        
+        /* Tutorial */
+        .tutorial {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Cradle of Civilization - Playable Version</h1>
+            <p>Full gameplay with unit orders and movement</p>
+        </div>
+
+        <!-- Auth Screen -->
+        <div id="auth-screen" class="screen active">
+            <div class="auth-screen">
+                <h2>Login to Play</h2>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="auth-email" value="player@game.com" placeholder="Enter any email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" value="password123" placeholder="Enter any password">
+                </div>
+                <button class="btn success full-width" onclick="login()">🔐 Login & Start Game</button>
+                <div id="auth-status"></div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-screen">
+                <div class="game-board">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Game Board - <span id="current-season">Spring 1901</span></h3>
+                        <button class="btn small" onclick="logout()">← Logout</button>
+                    </div>
+                    <div id="game-map"></div>
+                </div>
+                
+                <div class="game-sidebar">
+                    <div class="game-phase" id="game-phase">
+                        📋 Spring Orders Phase
+                    </div>
+                    
+                    <div class="tutorial">
+                        <strong>How to Play:</strong><br>
+                        1. Click a unit (A = Army) to select it<br>
+                        2. Click an adjacent region to move<br>
+                        3. Submit orders when ready<br>
+                        4. Process turn to see results
+                    </div>
+                    
+                    <div class="player-info">
+                        <h4>Current Player</h4>
+                        <div><strong>Name:</strong> <span id="game-player-name">-</span></div>
+                        <div><strong>Civilization:</strong> <span id="game-player-civ">-</span></div>
+                        <div><strong>Units:</strong> <span id="game-player-units">0</span></div>
+                        <div><strong>Supply Centers:</strong> <span id="game-player-centers">0</span></div>
+                    </div>
+                    
+                    <div class="order-panel">
+                        <h4>Selected Unit Orders</h4>
+                        <div id="selected-unit-info">
+                            <em>No unit selected</em>
+                        </div>
+                        <div id="order-controls" style="display: none;">
+                            <select id="order-type" onchange="updateOrderControls()">
+                                <option value="hold">Hold Position</option>
+                                <option value="move">Move To</option>
+                                <option value="support">Support</option>
+                            </select>
+                            <div id="move-controls" style="display: none;">
+                                <select id="move-target">
+                                    <option value="">Select destination...</option>
+                                </select>
+                            </div>
+                            <button class="btn small full-width" onclick="submitOrder()">Submit Order</button>
+                            <button class="btn small full-width" onclick="clearSelection()">Clear Selection</button>
+                        </div>
+                    </div>
+                    
+                    <div class="order-panel">
+                        <h4>Current Orders (<span id="orders-count">0</span>)</h4>
+                        <div id="orders-list" class="order-list">
+                            <em>No orders submitted</em>
+                        </div>
+                        <button class="btn small full-width" onclick="clearAllOrders()">Clear All Orders</button>
+                    </div>
+                    
+                    <h4>Turn Controls</h4>
+                    <button class="btn success full-width" onclick="processTurn()">🎯 Process Turn</button>
+                    <button class="btn full-width" onclick="nextPhase()">⏭️ Next Phase</button>
+                    <button class="btn full-width" onclick="refreshGameState()">🔄 Refresh</button>
+                    
+                    <div class="log" id="game-log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            currentUser: null,
+            gameData: null,
+            selectedUnit: null,
+            selectedRegion: null,
+            gamePhase: 'orders',
+            season: 'Spring',
+            year: 1901,
+            orders: new Map(),
+            units: new Map(),
+            regions: new Map()
+        };
+
+        function log(message, type = 'info') {
+            const gameLog = document.getElementById('game-log');
+            if (gameLog) {
+                const time = new Date().toLocaleTimeString();
+                const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'debug' ? '🔍' : 'ℹ️';
+                gameLog.innerHTML += `[${time}] ${prefix} ${message}\n`;
+                gameLog.scrollTop = gameLog.scrollHeight;
+            }
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function setStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+                element.innerHTML = `<div class="status ${className}">${message}</div>`;
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            const targetScreen = document.getElementById(screenId + '-screen');
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+                console.log(`Navigated to screen: ${screenId}`);
+            }
+        }
+
+        // Authentication and Game Setup
+        window.login = function() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            
+            if (!email.includes('@') || password.length < 6) {
+                setStatus('auth-status', 'Please enter a valid email and password (6+ chars)', 'error');
+                return;
+            }
+            
+            gameState.currentUser = {
+                uid: 'user_' + Date.now(),
+                email: email,
+                displayName: email.split('@')[0]
+            };
+            
+            setStatus('auth-status', '✅ Login successful! Starting game...', 'success');
+            
+            setTimeout(() => {
+                startGame();
+            }, 1000);
+        };
+
+        function startGame() {
+            const civilization = 'babylon'; // Default for this demo
+            const playerId = 'player_' + Date.now();
+            
+            // Initialize game
+            initializeRegions();
+            const units = createUnitsForPlayer(civilization, playerId);
+            
+            gameState.gameData = {
+                playerId: playerId,
+                civilization: civilization,
+                units: units
+            };
+            
+            // Store units in game state
+            units.forEach(unit => {
+                gameState.units.set(unit.id, unit);
+            });
+            
+            // Update UI
+            document.getElementById('game-player-name').textContent = gameState.currentUser.displayName;
+            document.getElementById('game-player-civ').textContent = civilization.charAt(0).toUpperCase() + civilization.slice(1);
+            document.getElementById('game-player-units').textContent = units.length;
+            document.getElementById('game-player-centers').textContent = getSupplyCenterCount(civilization);
+            
+            // Render game
+            renderGameMap();
+            renderUnits();
+            updateGameUI();
+            
+            showScreen('game');
+            
+            log('✅ Game started successfully!', 'success');
+            log(`Playing as ${civilization} with ${units.length} units`, 'info');
+            log('Click on your units (A) to select them and give orders', 'info');
+        }
+
+        function initializeRegions() {
+            const regionsData = [
+                { id: 'babylon', name: 'Babylon', x: 200, y: 200, isSupplyCenter: true, adjacentTo: ['mesopotamia', 'bagdad', 'syria'] },
+                { id: 'mesopotamia', name: 'Mesopotamia', x: 300, y: 150, isSupplyCenter: true, adjacentTo: ['babylon', 'assyria', 'persia'] },
+                { id: 'bagdad', name: 'Bagdad', x: 250, y: 250, isSupplyCenter: true, adjacentTo: ['babylon', 'persia', 'syria'] },
+                { id: 'syria', name: 'Syria', x: 100, y: 100, isSupplyCenter: false, adjacentTo: ['babylon', 'bagdad', 'egypt', 'anatolia'] },
+                { id: 'persia', name: 'Persia', x: 400, y: 200, isSupplyCenter: true, adjacentTo: ['mesopotamia', 'bagdad', 'assyria'] },
+                { id: 'egypt', name: 'Egypt', x: 50, y: 300, isSupplyCenter: true, adjacentTo: ['syria', 'anatolia'] },
+                { id: 'anatolia', name: 'Anatolia', x: 150, y: 50, isSupplyCenter: false, adjacentTo: ['syria', 'egypt', 'assyria'] },
+                { id: 'assyria', name: 'Assyria', x: 350, y: 100, isSupplyCenter: true, adjacentTo: ['mesopotamia', 'persia', 'anatolia'] }
+            ];
+
+            regionsData.forEach(region => {
+                gameState.regions.set(region.id, region);
+            });
+        }
+
+        function createUnitsForPlayer(civilization, playerId) {
+            const createUnit = (type, regionId, playerId) => {
+                const unitId = `${playerId}_${type}_${regionId}_${Date.now()}`;
+                return {
+                    id: unitId,
+                    type: type,
+                    region: regionId,
+                    regionId: regionId,
+                    playerId: playerId,
+                    canRetreat: false,
+                    isRetreating: false,
+                    mustRetreat: false,
+                    dislodged: false
+                };
+            };
+
+            const startingRegions = {
+                'babylon': ['babylon', 'mesopotamia', 'bagdad']
+            };
+
+            const regions = startingRegions[civilization] || ['babylon'];
+            const units = [];
+
+            regions.forEach((regionId, index) => {
+                const unit = createUnit('army', regionId, playerId);
+                units.push(unit);
+                log(`Created unit in ${regionId}`, 'debug');
+            });
+
+            return units;
+        }
+
+        function getSupplyCenterCount(civilization) {
+            return 3; // Babylon starts with 3 supply centers
+        }
+
+        function renderGameMap() {
+            const mapContainer = document.getElementById('game-map');
+            mapContainer.innerHTML = '';
+
+            gameState.regions.forEach((region, regionId) => {
+                const regionDiv = document.createElement('div');
+                regionDiv.className = 'region' + (region.isSupplyCenter ? ' supply-center' : '');
+                regionDiv.style.left = region.x + 'px';
+                regionDiv.style.top = region.y + 'px';
+                regionDiv.textContent = region.name;
+                regionDiv.title = `${region.name}${region.isSupplyCenter ? ' (Supply Center)' : ''}`;
+                regionDiv.setAttribute('data-region-id', regionId);
+                
+                regionDiv.onclick = (e) => handleRegionClick(regionId, e);
+                
+                mapContainer.appendChild(regionDiv);
+            });
+
+            log('Game map rendered with clickable regions', 'success');
+        }
+
+        function renderUnits() {
+            const mapContainer = document.getElementById('game-map');
+            
+            // Remove existing units
+            const existingUnits = mapContainer.querySelectorAll('.unit');
+            existingUnits.forEach(unit => unit.remove());
+
+            gameState.units.forEach((unit, unitId) => {
+                const region = gameState.regions.get(unit.region);
+                if (!region) {
+                    log(`Warning: Unit ${unitId} in unknown region ${unit.region}`, 'error');
+                    return;
+                }
+
+                const unitDiv = document.createElement('div');
+                unitDiv.className = `unit ${unit.type}`;
+                unitDiv.style.left = (region.x + 25) + 'px';
+                unitDiv.style.top = (region.y + 10) + 'px';
+                unitDiv.textContent = unit.type === 'army' ? 'A' : 'F';
+                unitDiv.title = `${unit.type.toUpperCase()} in ${region.name}`;
+                unitDiv.setAttribute('data-unit-id', unitId);
+                
+                if (gameState.selectedUnit === unitId) {
+                    unitDiv.classList.add('selected');
+                }
+                
+                unitDiv.onclick = (e) => {
+                    e.stopPropagation();
+                    handleUnitClick(unitId);
+                };
+                
+                mapContainer.appendChild(unitDiv);
+            });
+
+            log(`Rendered ${gameState.units.size} units`, 'success');
+        }
+
+        // Game Interaction
+        function handleUnitClick(unitId) {
+            const unit = gameState.units.get(unitId);
+            if (!unit) return;
+
+            // Clear previous selection
+            clearSelection();
+            
+            // Select this unit
+            gameState.selectedUnit = unitId;
+            gameState.selectedRegion = unit.region;
+            
+            log(`Selected ${unit.type} in ${unit.region}`, 'info');
+            
+            // Update UI
+            renderUnits();
+            highlightAdjacentRegions(unit.region);
+            updateSelectedUnitInfo(unit);
+        }
+
+        function handleRegionClick(regionId, event) {
+            const region = gameState.regions.get(regionId);
+            if (!region) return;
+
+            if (gameState.selectedUnit) {
+                const selectedUnit = gameState.units.get(gameState.selectedUnit);
+                if (selectedUnit && canMoveToRegion(selectedUnit.region, regionId)) {
+                    // Create move order
+                    createMoveOrder(gameState.selectedUnit, regionId);
+                } else {
+                    log(`Cannot move to ${region.name} - not adjacent or invalid`, 'error');
+                }
+            } else {
+                log(`Clicked region: ${region.name}`, 'debug');
+            }
+        }
+
+        function canMoveToRegion(fromRegionId, toRegionId) {
+            const fromRegion = gameState.regions.get(fromRegionId);
+            if (!fromRegion || !fromRegion.adjacentTo) return false;
+            
+            return fromRegion.adjacentTo.includes(toRegionId);
+        }
+
+        function highlightAdjacentRegions(regionId) {
+            // Clear previous highlights
+            document.querySelectorAll('.region').forEach(r => {
+                r.classList.remove('selected', 'move-target');
+            });
+
+            const region = gameState.regions.get(regionId);
+            if (!region) return;
+
+            // Highlight current region
+            const currentRegionEl = document.querySelector(`[data-region-id="${regionId}"]`);
+            if (currentRegionEl) {
+                currentRegionEl.classList.add('selected');
+            }
+
+            // Highlight adjacent regions
+            if (region.adjacentTo) {
+                region.adjacentTo.forEach(adjRegionId => {
+                    const adjRegionEl = document.querySelector(`[data-region-id="${adjRegionId}"]`);
+                    if (adjRegionEl) {
+                        adjRegionEl.classList.add('move-target');
+                    }
+                });
+            }
+        }
+
+        function updateSelectedUnitInfo(unit) {
+            const region = gameState.regions.get(unit.region);
+            const info = document.getElementById('selected-unit-info');
+            const controls = document.getElementById('order-controls');
+            
+            info.innerHTML = `
+                <strong>${unit.type.toUpperCase()}</strong> in <strong>${region.name}</strong><br>
+                <small>Unit ID: ${unit.id}</small>
+            `;
+            
+            controls.style.display = 'block';
+            
+            // Update move target options
+            updateMoveTargets(unit.region);
+        }
+
+        function updateMoveTargets(regionId) {
+            const moveSelect = document.getElementById('move-target');
+            moveSelect.innerHTML = '<option value="">Select destination...</option>';
+            
+            const region = gameState.regions.get(regionId);
+            if (region && region.adjacentTo) {
+                region.adjacentTo.forEach(adjRegionId => {
+                    const adjRegion = gameState.regions.get(adjRegionId);
+                    if (adjRegion) {
+                        const option = document.createElement('option');
+                        option.value = adjRegionId;
+                        option.textContent = adjRegion.name;
+                        moveSelect.appendChild(option);
+                    }
+                });
+            }
+        }
+
+        function createMoveOrder(unitId, targetRegionId) {
+            const unit = gameState.units.get(unitId);
+            const targetRegion = gameState.regions.get(targetRegionId);
+            
+            if (!unit || !targetRegion) return;
+
+            const orderId = `order_${Date.now()}`;
+            const order = {
+                id: orderId,
+                unitId: unitId,
+                type: 'move',
+                from: unit.region,
+                to: targetRegionId,
+                unit: unit,
+                status: 'pending'
+            };
+
+            gameState.orders.set(orderId, order);
+            
+            log(`Move order: ${unit.type} ${unit.region} → ${targetRegion.name}`, 'success');
+            
+            clearSelection();
+            updateOrdersList();
+        }
+
+        window.updateOrderControls = function() {
+            const orderType = document.getElementById('order-type').value;
+            const moveControls = document.getElementById('move-controls');
+            
+            if (orderType === 'move') {
+                moveControls.style.display = 'block';
+            } else {
+                moveControls.style.display = 'none';
+            }
+        };
+
+        window.submitOrder = function() {
+            if (!gameState.selectedUnit) {
+                log('No unit selected', 'error');
+                return;
+            }
+
+            const orderType = document.getElementById('order-type').value;
+            const unit = gameState.units.get(gameState.selectedUnit);
+
+            if (orderType === 'hold') {
+                const orderId = `order_${Date.now()}`;
+                const order = {
+                    id: orderId,
+                    unitId: gameState.selectedUnit,
+                    type: 'hold',
+                    from: unit.region,
+                    unit: unit,
+                    status: 'pending'
+                };
+                gameState.orders.set(orderId, order);
+                log(`Hold order: ${unit.type} holds in ${unit.region}`, 'success');
+            } else if (orderType === 'move') {
+                const targetRegion = document.getElementById('move-target').value;
+                if (targetRegion) {
+                    createMoveOrder(gameState.selectedUnit, targetRegion);
+                } else {
+                    log('Please select a destination', 'error');
+                    return;
+                }
+            }
+
+            clearSelection();
+            updateOrdersList();
+        };
+
+        window.clearSelection = function() {
+            gameState.selectedUnit = null;
+            gameState.selectedRegion = null;
+            
+            // Clear UI
+            document.getElementById('selected-unit-info').innerHTML = '<em>No unit selected</em>';
+            document.getElementById('order-controls').style.display = 'none';
+            
+            // Clear highlights
+            document.querySelectorAll('.region').forEach(r => {
+                r.classList.remove('selected', 'move-target');
+            });
+            
+            renderUnits();
+        };
+
+        function updateOrdersList() {
+            const ordersList = document.getElementById('orders-list');
+            const ordersCount = document.getElementById('orders-count');
+            
+            ordersCount.textContent = gameState.orders.size;
+            
+            if (gameState.orders.size === 0) {
+                ordersList.innerHTML = '<em>No orders submitted</em>';
+                return;
+            }
+            
+            ordersList.innerHTML = '';
+            gameState.orders.forEach((order, orderId) => {
+                const orderDiv = document.createElement('div');
+                orderDiv.className = 'order-item';
+                
+                let orderText = '';
+                if (order.type === 'hold') {
+                    orderText = `${order.unit.type.toUpperCase()} holds in ${order.from}`;
+                } else if (order.type === 'move') {
+                    const fromRegion = gameState.regions.get(order.from);
+                    const toRegion = gameState.regions.get(order.to);
+                    orderText = `${order.unit.type.toUpperCase()} ${fromRegion.name} → ${toRegion.name}`;
+                }
+                
+                orderDiv.innerHTML = `
+                    <div class="order-text">${orderText}</div>
+                    <div class="order-meta">Status: ${order.status}</div>
+                `;
+                
+                ordersList.appendChild(orderDiv);
+            });
+        }
+
+        window.clearAllOrders = function() {
+            gameState.orders.clear();
+            updateOrdersList();
+            log('All orders cleared', 'info');
+        };
+
+        window.processTurn = function() {
+            if (gameState.orders.size === 0) {
+                log('No orders to process', 'error');
+                return;
+            }
+
+            log('Processing turn...', 'info');
+            
+            // Process each order
+            gameState.orders.forEach((order, orderId) => {
+                if (order.type === 'move') {
+                    // Execute move
+                    const unit = gameState.units.get(order.unitId);
+                    if (unit) {
+                        const fromRegion = gameState.regions.get(order.from);
+                        const toRegion = gameState.regions.get(order.to);
+                        
+                        unit.region = order.to;
+                        unit.regionId = order.to;
+                        order.status = 'successful';
+                        
+                        log(`✅ ${unit.type.toUpperCase()} moved from ${fromRegion.name} to ${toRegion.name}`, 'success');
+                    }
+                } else if (order.type === 'hold') {
+                    order.status = 'successful';
+                    log(`✅ ${order.unit.type.toUpperCase()} held position in ${order.from}`, 'success');
+                }
+            });
+            
+            // Clear orders after processing
+            gameState.orders.clear();
+            
+            // Re-render units in new positions
+            renderUnits();
+            updateOrdersList();
+            updateGameUI();
+            
+            log('Turn processing complete!', 'success');
+        };
+
+        window.nextPhase = function() {
+            // Advance game phase/season
+            if (gameState.season === 'Spring') {
+                gameState.season = 'Fall';
+            } else {
+                gameState.season = 'Spring';
+                gameState.year++;
+            }
+            
+            updateGameUI();
+            log(`Advanced to ${gameState.season} ${gameState.year}`, 'info');
+        };
+
+        function updateGameUI() {
+            document.getElementById('current-season').textContent = `${gameState.season} ${gameState.year}`;
+            document.getElementById('game-phase').textContent = `📋 ${gameState.season} Orders Phase`;
+            document.getElementById('orders-count').textContent = gameState.orders.size;
+        }
+
+        window.refreshGameState = function() {
+            renderUnits();
+            updateOrdersList();
+            updateGameUI();
+            log('Game state refreshed', 'success');
+        };
+
+        window.logout = function() {
+            gameState = {
+                currentUser: null,
+                gameData: null,
+                selectedUnit: null,
+                selectedRegion: null,
+                gamePhase: 'orders',
+                season: 'Spring',
+                year: 1901,
+                orders: new Map(),
+                units: new Map(),
+                regions: new Map()
+            };
+            showScreen('auth');
+        };
+
+        // Initialize
+        console.log('🎮 Playable Game with Orders loaded');
+        console.log('💡 Login to start playing with full unit control');
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Game Creation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>🐛 Debug Game Creation</h1>
+    
+    <div class="test-result info">
+        <strong>Testing game creation step by step...</strong>
+    </div>
+
+    <h2>Test Game Creation</h2>
+    <div>
+        <input type="text" id="gameName" placeholder="Game Name" value="Test Game">
+        <input type="text" id="description" placeholder="Description" value="Test description">
+        <button onclick="testGameCreation()">Test Create Game</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script type="module">
+        function addResult(type, message) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'test-result ' + type;
+            div.innerHTML = message;
+            results.appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Test imports step by step
+        addResult('info', 'Starting import tests...');
+
+        try {
+            // Test demo auth import (it's a singleton instance, not a class)
+            const { default: demoAuthService } = await import('./src/js/core/demo-auth.js');
+            addResult('success', '✅ Demo Auth imported successfully');
+            
+            // Initialize demo auth
+            demoAuthService.initialize();
+            addResult('success', '✅ Demo Auth initialized');
+            
+            // Mock login
+            await demoAuthService.login('test@example.com', 'password123');
+            addResult('success', '✅ Demo login successful');
+
+        } catch (error) {
+            addResult('error', '❌ Demo Auth failed: ' + error.message);
+        }
+
+        try {
+            // Test game service import
+            const { default: gameService } = await import('./src/js/services/game-service.js');
+            addResult('success', '✅ Game Service imported successfully');
+            
+            // Make gameService globally available for testing
+            window.gameService = gameService;
+            
+        } catch (error) {
+            addResult('error', '❌ Game Service import failed: ' + error.message);
+            console.error('Game Service import error details:', error);
+        }
+
+        // Test game creation function
+        window.testGameCreation = async function() {
+            const gameName = document.getElementById('gameName').value;
+            const description = document.getElementById('description').value;
+            
+            addResult('info', `Testing game creation with name: "${gameName}"`);
+            
+            if (!window.gameService) {
+                addResult('error', '❌ Game service not available');
+                return;
+            }
+
+            // Debug the game service state
+            addResult('info', `Game service demo mode: ${window.gameService.demoMode}`);
+            addResult('info', `Game service isDemoMode(): ${window.gameService.isDemoMode()}`);
+            addResult('info', `Firebase authenticated: ${await import('./src/js/services/firebase-service.js').then(m => m.default.isAuthenticated())}`);
+
+            try {
+                const gameConfig = {
+                    name: gameName,
+                    description: description,
+                    maxPlayers: 7,
+                    turnLengthHours: 48,
+                    isPrivate: false,
+                    allowSpectators: true
+                };
+
+                addResult('info', 'Game config: ' + JSON.stringify(gameConfig, null, 2));
+                
+                // Force demo mode
+                window.gameService.demoMode = true;
+                addResult('info', 'Forced demo mode to true');
+                
+                const gameId = await window.gameService.createGame(gameConfig);
+                addResult('success', `✅ Game created successfully! ID: ${gameId}`);
+                
+            } catch (error) {
+                addResult('error', `❌ Game creation failed: ${error.message}`);
+                console.error('Game creation error details:', error);
+                console.error('Error stack:', error.stack);
+            }
+        };
+
+        addResult('success', '🎯 Debug page loaded. Ready for testing!');
+    </script>
+</body>
+</html>
