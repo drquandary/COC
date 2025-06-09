@@ -51,6 +51,15 @@ Temporal capital intersects with established research on various related concept
 
 By integrating these cognitive and ecological concepts, we can reframe Bourdieu’s theory for archaeological application. Habitus is not just social but is biologically instantiated in neural pathways and sensorimotor skills. Hysteresis is a cognitive crisis that demands new solutions. And temporal capital is a measurable resource, distributed across minds and landscapes, that communities use to navigate that crisis. This framework allows us to analyze the Yalahau rock alignments not just as hydraulic features, but as components of a dynamic, extended cognitive system for adaptation.
 
+D. Contemporary Maya Ethnographies on Temporal Landscapes
+Understanding how ancient Maya engineered wetlands can benefit from insights into how living Maya communities perceive and engage with temporal landscapes. Diserens Morgan and Leventhal (2020:514–519) examine the Tihosuco heritage project, showing how local narrators weave Caste War memories into present land use to legitimize ecological restoration and future economic development. Through ritual reenactments, Tihosuco residents instantiate Bourdieu’s notion of practice as temporalization, demonstrating how historical memory becomes temporal capital.
+
+Monod-Becquelin, Breton, and Ruz (2018:6–10) document that Maya conceptions of time remain cyclic. Ritual calendars structure agricultural labor and ceremonial obligations, modulating activities to environmental variability and aligning individual habitus with communal field rhythms.
+
+Further insight comes from Anderson, Dzib Zihum de Cen, Medina Tzuc, and Valdez Chale’s *Political Ecology in a Yucatec Maya Community* (2005). They describe how farmers read cues such as northerly winds, the flowering of chacah trees, and animal behavior to anticipate rainfall and time burning or planting. These observations form an embodied temporal schema transmitted through reciprocal *faenas* and the instruction of elders, whose mastery accrues symbolic power—another form of temporal capital.
+
+These ethnographic perspectives illustrate that Maya agents accumulate temporal capital by mastering ritual calendars and environmental indicators. Their habitus incorporates memories of past droughts and upheavals, providing a framework for interpreting the embodied knowledge materialized in ancient rock alignments.
+
 II. The Yalahau Corridor: An Ancient Laboratory for Temporal Adaptation
 
 A. Paleoenvironmental Context and the Hysteretic Challenge
